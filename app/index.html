@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Lists</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+  <h1>Lists</h1>
+  <p class="hint">One list at a time. Start a new one each day.</p>
+
+  <a class="card" id="open-list" href="#">
+    <strong>Open list</strong><br/>
+    <small id="open-detail">No list yet</small>
+  </a>
+
+  <a class="card" id="new-list" href="#">
+    <strong>New list</strong><br/>
+    <small>Clear everything and start fresh</small>
+  </a>
+
+  <script src="js/store.js"></script>
+  <script>
+    const openCard = document.getElementById('open-list');
+    const openDetail = document.getElementById('open-detail');
+
+    function render() {
+      const list = loadList();
+      if (!list) {
+        openCard.classList.add('disabled');
+        openDetail.textContent = 'No list yet — start a new one';
+        return;
+      }
+      openCard.classList.remove('disabled');
+      const total = list.items.length;
+      const done = list.items.filter(i => i.done).length;
+      const counts = total === 0
+        ? 'No items yet'
+        : done + ' of ' + total + ' done';
+      openDetail.textContent = formatDay(list.createdAt) + ' — ' + counts;
+    }
+
+    openCard.addEventListener('click', e => {
+      e.preventDefault();
+      if (!loadList()) return;
+      window.location.href = 'html/list.html';
+    });
+
+    document.getElementById('new-list').addEventListener('click', e => {
+      e.preventDefault();
+      const list = loadList();
+      if (list && list.items.length > 0) {
+        const ok = confirm('This clears your current list of ' + list.items.length +
+          ' item' + (list.items.length === 1 ? '' : 's') + '. Start a new one?');
+        if (!ok) return;
+      }
+      newList();
+      window.location.href = 'html/list.html';
+    });
+
+    render();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
+</body>
+</html>
