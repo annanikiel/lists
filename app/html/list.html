@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>List</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+  <a href="../index.html">← Home</a>
+
+  <header class="page-header">
+    <div>
+      <h1 id="title">Today</h1>
+      <p class="hint" id="subtitle">Tick an item to move it to the bottom.</p>
+    </div>
+  </header>
+
+  <form class="add-form" id="add-form">
+    <div class="row">
+      <input type="text" id="item-text" placeholder="What needs doing?" autocomplete="off" required />
+    </div>
+    <div class="row">
+      <input type="text" id="item-tag" placeholder="Tag (optional)" autocomplete="off" list="tag-options" />
+      <datalist id="tag-options"></datalist>
+      <label class="field" for="item-priority">
+        Priority
+        <select id="item-priority">
+          <option value="high">High</option>
+          <option value="medium" selected>Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+      <button class="primary" type="submit">Add item</button>
+    </div>
+  </form>
+
+  <div class="toolbar">
+    <label class="field" for="sort">
+      Sort by
+      <select id="sort">
+        <option value="priority">Priority</option>
+        <option value="tag">Tag</option>
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+      </select>
+    </label>
+    <span class="spacer"></span>
+    <span class="hint" id="progress"></span>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <script src="../js/store.js"></script>
+  <script src="../js/list.js"></script>
+</body>
+</html>
