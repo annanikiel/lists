@@ -43,11 +43,11 @@ button {
 button:hover { border-color: #bbb; }
 
 button.primary {
-  background: #111;
+  background: #0a6cff;
   color: white;
-  border-color: #111;
+  border-color: #0a6cff;
 }
-button.primary:hover { border-color: #111; opacity: 0.9; }
+button.primary:hover { border-color: #0a6cff; opacity: 0.9; }
 
 /* Page header */
 .page-header {
@@ -58,7 +58,17 @@ button.primary:hover { border-color: #111; opacity: 0.9; }
   flex-wrap: wrap;
 }
 
-/* Add item form */
+/* Sort bar, directly under the header */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+}
+.toolbar .spacer { flex: 1; }
+
+/* Add item form, revealed by the "+ Add item" button */
 .add-form {
   margin-top: 1rem;
   border: 1px solid #e5e5e5;
@@ -74,6 +84,8 @@ button.primary:hover { border-color: #111; opacity: 0.9; }
   align-items: center;
 }
 .add-form .row + .row { margin-top: 0.75rem; }
+.add-form .spacer { flex: 1; }
+.add-form button { margin-top: 0; }
 
 input[type="text"], select {
   padding: 0.6rem 0.7rem;
@@ -89,9 +101,14 @@ input[type="text"]:focus, select:focus {
 }
 
 #item-text { flex: 1 1 20rem; }
-#item-tag { flex: 0 1 12rem; }
 
-.add-form button { margin-top: 0; }
+@media (max-width: 560px) {
+  /* Stack the form: each field on its own row, buttons sharing the last one. */
+  .add-form label.field { flex: 1 1 100%; }
+  .add-form label.field select { flex: 1; }
+  .add-form .spacer { flex-basis: 100%; height: 0; }
+  .add-form .row > button { flex: 1; }
+}
 
 label.field {
   display: flex;
@@ -100,16 +117,6 @@ label.field {
   color: #666;
   font-size: 0.9rem;
 }
-
-/* Sort bar */
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  flex-wrap: wrap;
-}
-.toolbar .spacer { flex: 1; }
 
 /* List */
 .list {
@@ -141,16 +148,25 @@ label.field {
   word-break: break-word;
 }
 
+/* Second line: date & time, tag, priority. Fixed columns so the three line
+   up between items, even when an item has no tag. */
 .item .meta {
-  display: flex;
+  display: grid;
+  grid-template-columns: 8.5rem 7.5rem auto;
+  justify-content: start;
   align-items: center;
   gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-top: 0.3rem;
+  margin-top: 0.35rem;
   color: #666;
   font-size: 0.85rem;
 }
 .item.done .meta { color: #999; }
+
+@media (max-width: 560px) {
+  /* Too narrow for three columns: the timestamp takes its own row. */
+  .item .meta { grid-template-columns: 7.5rem auto; }
+  .item .meta .when { grid-column: 1 / -1; }
+}
 
 .pill {
   display: inline-block;

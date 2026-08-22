@@ -11,10 +11,14 @@ day's items — so nothing carries over and clutter can't accumulate.
 - **New list** — wipes the current list and starts fresh (asks to confirm if the list isn't empty)
 
 **List view**:
-- Add an item with a description, an optional tag, and a priority (high / medium / low)
-- Each item shows the title on one line, then tag, priority and the date & time it was added
+- Sort control sits directly under the header: priority, tag, newest or oldest.
+  Completed items always stay at the bottom whichever is chosen.
+- **+ Add item** opens the entry form: a description, a tag from the dropdown, and a
+  priority (high / medium / low). The form stays open so you can add several in a row;
+  *Cancel* or `Esc` closes it.
+- Each item shows the title on one line, then date & time added, tag and priority on the
+  second, lined up in columns across items
 - Tick the checkbox to complete an item — it moves to the bottom of the list
-- Sort by priority, tag, newest or oldest; completed items always stay at the bottom
 - `×` removes an item
 
 Everything is stored in the browser's `localStorage`, so the list stays on the device.
@@ -29,10 +33,32 @@ app/
   index.html        home screen
   html/list.html    list view
   css/app.css       styles
+  data/tags.json    the tag options  <- edit this to change the tags
   js/store.js       localStorage helpers
   js/list.js        list view logic
   manifest.json     PWA manifest
   sw.js             service worker (offline cache)
 ```
+
+### Changing the tags
+
+`app/data/tags.json` is a plain JSON array of strings. Add, remove or rename entries
+and push — nothing else needs changing:
+
+```json
+[
+  "Foundations",
+  "Work",
+  "Study",
+  ...
+]
+```
+
+The order in the file is also the order used by **Sort by → Tag**, so put the tags you
+want at the top of the list first. Items already tagged with something you later remove
+from the file keep their tag; they just sort after the listed ones.
+
+One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
+`CACHE` in `app/sw.js` (`lists-v2` → `lists-v3`) to make browsers pick the new file up.
 
 To run locally: `cd app && python3 -m http.server 8000`, then open http://localhost:8000
