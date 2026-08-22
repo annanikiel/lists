@@ -16,25 +16,6 @@
     </div>
   </header>
 
-  <form class="add-form" id="add-form">
-    <div class="row">
-      <input type="text" id="item-text" placeholder="What needs doing?" autocomplete="off" required />
-    </div>
-    <div class="row">
-      <input type="text" id="item-tag" placeholder="Tag (optional)" autocomplete="off" list="tag-options" />
-      <datalist id="tag-options"></datalist>
-      <label class="field" for="item-priority">
-        Priority
-        <select id="item-priority">
-          <option value="high">High</option>
-          <option value="medium" selected>Medium</option>
-          <option value="low">Low</option>
-        </select>
-      </label>
-      <button class="primary" type="submit">Add item</button>
-    </div>
-  </form>
-
   <div class="toolbar">
     <label class="field" for="sort">
       Sort by
@@ -48,6 +29,33 @@
     <span class="spacer"></span>
     <span class="hint" id="progress"></span>
   </div>
+
+  <button class="primary" type="button" id="add-toggle">+ Add item</button>
+
+  <form class="add-form" id="add-form" hidden>
+    <div class="row">
+      <input type="text" id="item-text" placeholder="What needs doing?" autocomplete="off" required />
+    </div>
+    <div class="row">
+      <label class="field" for="item-tag">
+        Tag
+        <select id="item-tag">
+          <option value="">No tag</option>
+        </select>
+      </label>
+      <label class="field" for="item-priority">
+        Priority
+        <select id="item-priority">
+          <option value="high">High</option>
+          <option value="medium" selected>Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+      <span class="spacer"></span>
+      <button type="button" id="add-cancel">Cancel</button>
+      <button class="primary" type="submit">Add item</button>
+    </div>
+  </form>
 
   <div class="list" id="list"></div>
 
