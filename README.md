@@ -19,7 +19,11 @@ day's items — so nothing carries over and clutter can't accumulate.
 - Each item shows the title on one line, then date & time added, tag and priority on the
   second, lined up in columns across items
 - Tick the checkbox to complete an item — it moves to the bottom of the list
+- `✎` reopens an item in the form to reword it or change its tag or priority.
+  The row being edited is highlighted, and the "added" timestamp is left alone.
 - `×` removes an item
+- **Clear completed** (next to the progress count, only shown when something is
+  ticked) deletes the completed items and leaves the rest of the list running
 
 Everything is stored in the browser's `localStorage`, so the list stays on the device.
 
@@ -59,6 +63,10 @@ want at the top of the list first. Items already tagged with something you later
 from the file keep their tag; they just sort after the listed ones.
 
 One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
-`CACHE` in `app/sw.js` (`lists-v2` → `lists-v3`) to make browsers pick the new file up.
+`CACHE` in `app/sw.js` (e.g. `lists-v3` → `lists-v4`) to make browsers pick the new
+file up. The same applies to any change to the HTML, CSS or JS.
+
+Tags removed from the file are kept on items already using them — they show as normal
+and stay selectable when you edit that item, they just sort after the listed tags.
 
 To run locally: `cd app && python3 -m http.server 8000`, then open http://localhost:8000

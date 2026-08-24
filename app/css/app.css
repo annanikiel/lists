@@ -67,6 +67,14 @@ button.primary:hover { border-color: #0a6cff; opacity: 0.9; }
   flex-wrap: wrap;
 }
 .toolbar .spacer { flex: 1; }
+.toolbar button { margin-top: 0; }
+
+.clear {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+.clear:hover { color: #111; }
 
 /* Add item form, revealed by the "+ Add item" button */
 .add-form {
@@ -128,7 +136,7 @@ label.field {
 
 .item {
   display: grid;
-  grid-template-columns: auto 1fr auto; /* checkbox, body, remove */
+  grid-template-columns: auto minmax(0, 1fr) auto; /* checkbox, body, actions */
   gap: 0.75rem;
   padding: 0.85rem 1rem;
   border-top: 1px solid #eee;
@@ -142,6 +150,12 @@ label.field {
   color: #888;
 }
 .item.done .label { text-decoration: line-through; }
+
+/* The row currently open in the form */
+.item.editing {
+  background: #f2f7ff;
+  box-shadow: inset 3px 0 0 #0a6cff;
+}
 
 .item .label {
   display: block;
@@ -163,8 +177,12 @@ label.field {
 .item.done .meta { color: #999; }
 
 @media (max-width: 560px) {
+  /* Narrower page margin buys the room the meta columns need */
+  body { margin: 1rem; }
+
   /* Too narrow for three columns: the timestamp takes its own row. */
-  .item .meta { grid-template-columns: 7.5rem auto; }
+  .item { padding: 0.85rem 0.75rem; gap: 0.5rem; }
+  .item .meta { grid-template-columns: minmax(0, 7rem) auto; }
   .item .meta .when { grid-column: 1 / -1; }
 }
 
@@ -177,7 +195,13 @@ label.field {
   line-height: 1.5;
 }
 
-.pill.tag { background: #f4f4f4; }
+.pill.tag {
+  background: #f4f4f4;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pill.high { background: #fdecea; border-color: #f3c8c3; color: #9c2c20; }
 .pill.medium { background: #fdf4e3; border-color: #ecd6a8; color: #8a6100; }
 .pill.low { background: #eef5ee; border-color: #cadfca; color: #3f6b45; }
@@ -199,17 +223,32 @@ input[type="checkbox"] {
   margin-right: 0.25rem;
 }
 
-.remove {
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.row-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
   margin: 0;
-  padding: 0.2rem 0.5rem;
+  padding: 0;
   border: none;
   background: none;
-  color: #bbb;
-  font-size: 1.1rem;
+  color: #aaa;
+  font-size: 1.15rem;
   line-height: 1;
   border-radius: 8px;
 }
-.remove:hover { color: #111; border: none; background: #f0f0f0; }
+.row-btn:hover { color: #111; border: none; background: #f0f0f0; }
+
+@media (max-width: 560px) {
+  .row-btn { min-width: 2rem; min-height: 2rem; }
+}
 
 .empty {
   padding: 1.5rem 1rem;
