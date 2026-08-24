@@ -10,6 +10,8 @@ const listEl = document.getElementById('list');
 const formEl = document.getElementById('add-form');
 const toggleEl = document.getElementById('add-toggle');
 const cancelEl = document.getElementById('add-cancel');
+const submitEl = document.getElementById('add-submit');
+const clearDoneEl = document.getElementById('clear-done');
 const textEl = document.getElementById('item-text');
 const tagEl = document.getElementById('item-tag');
 const priorityEl = document.getElementById('item-priority');
@@ -19,6 +21,7 @@ const progressEl = document.getElementById('progress');
 
 let list = loadList() || newList();
 let tags = [];
+let editingId = null;   /* id of the item the form is editing, null when adding */
 
 sortEl.value = loadSort();
 
@@ -58,7 +61,8 @@ function pill(text, className) {
 
 function renderItem(item) {
   const row = document.createElement('div');
-  row.className = 'item' + (item.done ? ' done' : '');
+  row.className = 'item' + (item.done ? ' done' : '') +
+    (item.id === editingId ? ' editing' : '');
 
   const box = document.createElement('input');
   box.type = 'checkbox';
@@ -90,15 +94,27 @@ function renderItem(item) {
   meta.append(when, tagCell, priorityCell);
   body.append(label, meta);
 
+  const edit = document.createElement('button');
+  edit.type = 'button';
+  edit.className = 'row-btn';
+  edit.textContent = '✎';
+  edit.title = 'Edit item';
+  edit.setAttribute('aria-label', 'Edit ' + item.text);
+  edit.addEventListener('click', () => openForm(item));
+
   const remove = document.createElement('button');
   remove.type = 'button';
-  remove.className = 'remove';
+  remove.className = 'row-btn remove';
   remove.textContent = '×';
   remove.title = 'Remove item';
   remove.setAttribute('aria-label', 'Remove ' + item.text);
   remove.addEventListener('click', () => removeItem(item.id));
 
-  row.append(box, body, remove);
+  const actions = document.createElement('div');
+  actions.className = 'row-actions';
+  actions.append(edit, remove);
+
+  row.append(box, body, actions);
   return row;
 }
 
@@ -110,6 +126,9 @@ function render() {
     ? done + ' of ' + list.items.length + ' done'
     : '';
 
+  clearDoneEl.hidden = done === 0;
+  clearDoneEl.textContent = 'Clear completed (' + done + ')';
+
   if (list.items.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'empty';
@@ -120,18 +139,38 @@ function render() {
   }
 }
 
-/* Add form */
-function openForm() {
+/* The one form does double duty: adding a new item, or editing an existing
+   one when `item` is passed in. */
+function openForm(item) {
+  editingId = item ? item.id : null;
+  formEl.reset();
+  textEl.value = item ? item.text : '';
+  setTagValue(item ? item.tag : '');
+  priorityEl.value = item ? item.priority : 'medium';
+  submitEl.textContent = item ? 'Save changes' : 'Add item';
   formEl.hidden = false;
   toggleEl.hidden = true;
+  render();          /* marks the row being edited */
   textEl.focus();
+  textEl.select();
 }
 
 function closeForm() {
+  editingId = null;
   formEl.reset();
   priorityEl.value = 'medium';
+  submitEl.textContent = 'Add item';
   formEl.hidden = true;
   toggleEl.hidden = false;
+  render();
+}
+
+/* Select a tag, keeping tags that have since been dropped from tags.json so
+   editing an old item doesn't silently strip its tag. */
+function setTagValue(tag) {
+  const known = [...tagEl.options].some(o => o.value === tag);
+  if (tag && !known) tagEl.append(new Option(tag, tag));
+  tagEl.value = tag || '';
 }
 
 function addItem(text, tag, priority) {
@@ -147,6 +186,17 @@ function addItem(text, tag, priority) {
   render();
 }
 
+function updateItem(id, text, tag, priority) {
+  const item = list.items.find(i => i.id === id);
+  if (!item) return;
+  item.text = text;
+  item.tag = tag;
+  item.priority = priority;
+  /* createdAt stays put — the second line records when the item was added. */
+  saveList(list);
+  render();
+}
+
 function toggleItem(id, done) {
   const item = list.items.find(i => i.id === id);
   if (!item) return;
@@ -158,11 +208,25 @@ function toggleItem(id, done) {
 function removeItem(id) {
   list.items = list.items.filter(i => i.id !== id);
   saveList(list);
-  render();
+  if (id === editingId) closeForm(); else render();
 }
 
-toggleEl.addEventListener('click', openForm);
+/* Drop the completed items but keep the list going. */
+function clearCompleted() {
+  const done = list.items.filter(i => i.done);
+  if (done.length === 0) return;
+  const ok = confirm('Remove ' + done.length + ' completed item' +
+    (done.length === 1 ? '' : 's') + ' from the list?');
+  if (!ok) return;
+  const editingCleared = done.some(i => i.id === editingId);
+  list.items = list.items.filter(i => !i.done);
+  saveList(list);
+  if (editingCleared) closeForm(); else render();
+}
+
+toggleEl.addEventListener('click', () => openForm());
 cancelEl.addEventListener('click', closeForm);
+clearDoneEl.addEventListener('click', clearCompleted);
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !formEl.hidden) closeForm();
@@ -172,6 +236,13 @@ formEl.addEventListener('submit', e => {
   e.preventDefault();
   const text = textEl.value.trim();
   if (!text) return;
+
+  if (editingId) {
+    updateItem(editingId, text, tagEl.value, priorityEl.value);
+    closeForm();
+    return;
+  }
+
   addItem(text, tagEl.value, priorityEl.value);
   /* Stay open so several items can be added in one go. */
   formEl.reset();
