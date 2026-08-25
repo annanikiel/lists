@@ -76,6 +76,29 @@ function renderItem(item) {
   label.className = 'label';
   label.textContent = item.text;
 
+  /* Session marks: one dot per work session, tally-style, after the title.
+     The + logs a session; tapping a dot removes that one. */
+  const sessions = document.createElement('span');
+  sessions.className = 'sessions';
+  (item.sessions || []).forEach((stamp, at) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'dot';
+    dot.title = 'Session at ' + formatStamp(stamp) + ' — tap to remove';
+    dot.setAttribute('aria-label', 'Remove session at ' + formatStamp(stamp));
+    dot.addEventListener('click', () => removeSession(item.id, at));
+    sessions.appendChild(dot);
+  });
+
+  const addSessionBtn = document.createElement('button');
+  addSessionBtn.type = 'button';
+  addSessionBtn.className = 'session-add';
+  addSessionBtn.textContent = '+';
+  addSessionBtn.title = 'Log a session';
+  addSessionBtn.setAttribute('aria-label', 'Log a session for ' + item.text);
+  addSessionBtn.addEventListener('click', () => addSession(item.id));
+  sessions.appendChild(addSessionBtn);
+
   /* Second line: date & time, tag, priority — one grid cell each, so the
      columns line up between items. The tag cell stays in place when empty. */
   const meta = document.createElement('div');
@@ -92,7 +115,7 @@ function renderItem(item) {
   priorityCell.appendChild(pill(PRIORITY_LABEL[item.priority], item.priority));
 
   meta.append(when, tagCell, priorityCell);
-  body.append(label, meta);
+  body.append(label, sessions, meta);
 
   const edit = document.createElement('button');
   edit.type = 'button';
@@ -181,6 +204,7 @@ function addItem(text, tag, priority) {
     priority: priority,
     createdAt: new Date().toISOString(),
     done: false,
+    sessions: [],
   });
   saveList(list);
   render();
@@ -193,6 +217,22 @@ function updateItem(id, text, tag, priority) {
   item.tag = tag;
   item.priority = priority;
   /* createdAt stays put — the second line records when the item was added. */
+  saveList(list);
+  render();
+}
+
+function addSession(id) {
+  const item = list.items.find(i => i.id === id);
+  if (!item) return;
+  item.sessions = (item.sessions || []).concat(new Date().toISOString());
+  saveList(list);
+  render();
+}
+
+function removeSession(id, at) {
+  const item = list.items.find(i => i.id === id);
+  if (!item || !item.sessions || at >= item.sessions.length) return;
+  item.sessions.splice(at, 1);
   saveList(list);
   render();
 }

@@ -158,9 +158,59 @@ label.field {
 }
 
 .item .label {
-  display: block;
   word-break: break-word;
 }
+
+/* Session marks — one dot per session, sitting after the title */
+.sessions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  vertical-align: middle;
+  margin-left: 0.4rem;
+}
+
+.dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 50%;
+}
+.dot::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #0a6cff;
+}
+.dot:hover { border: none; background: #eaf1ff; }
+.dot:hover::before { background: #9c2c20; }   /* hints that a tap removes it */
+
+.session-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  margin: 0 0 0 0.15rem;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.session-add:hover { border: none; background: #eaf1ff; color: #0a6cff; }
+
+.item.done .dot::before { background: #bbb; }
+.item.done .session-add { color: #ddd; }
 
 /* Second line: date & time, tag, priority. Fixed columns so the three line
    up between items, even when an item has no tag. */
@@ -248,6 +298,10 @@ input[type="checkbox"] {
 
 @media (max-width: 560px) {
   .row-btn { min-width: 2rem; min-height: 2rem; }
+
+  /* Bigger session targets for thumbs */
+  .dot { width: 1.4rem; height: 1.4rem; }
+  .session-add { width: 1.6rem; height: 1.6rem; font-size: 1.05rem; }
 }
 
 .empty {

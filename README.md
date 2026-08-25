@@ -19,6 +19,9 @@ day's items — so nothing carries over and clutter can't accumulate.
 - Each item shows the title on one line, then date & time added, tag and priority on the
   second, lined up in columns across items
 - Tick the checkbox to complete an item — it moves to the bottom of the list
+- `+` after the title logs a work session and leaves a dot, so a big item can be
+  chipped away at over several sittings: `Write the review ● ● ●`. Each dot shows
+  the time it was logged on hover, and tapping one removes it.
 - `✎` reopens an item in the form to reword it or change its tag or priority.
   The row being edited is highlighted, and the "added" timestamp is left alone.
 - `×` removes an item
@@ -63,7 +66,7 @@ want at the top of the list first. Items already tagged with something you later
 from the file keep their tag; they just sort after the listed ones.
 
 One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
-`CACHE` in `app/sw.js` (e.g. `lists-v3` → `lists-v4`) to make browsers pick the new
+`CACHE` in `app/sw.js` (e.g. `lists-v4` → `lists-v5`) to make browsers pick the new
 file up. The same applies to any change to the HTML, CSS or JS.
 
 Tags removed from the file are kept on items already using them — they show as normal
