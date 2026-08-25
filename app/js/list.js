@@ -35,6 +35,7 @@ function tagRank(tag) {
 
 function sortItems(items, sort) {
   const compare = {
+    manual: () => 0,
     priority: (a, b) =>
       PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority] ||
       new Date(a.createdAt) - new Date(b.createdAt),
@@ -63,6 +64,7 @@ function renderItem(item) {
   const row = document.createElement('div');
   row.className = 'item' + (item.done ? ' done' : '') +
     (item.id === editingId ? ' editing' : '');
+  row.dataset.id = item.id;
 
   const box = document.createElement('input');
   box.type = 'checkbox';
@@ -75,6 +77,29 @@ function renderItem(item) {
   const label = document.createElement('span');
   label.className = 'label';
   label.textContent = item.text;
+
+  /* Session marks: one dot per work session, tally-style, after the title.
+     The + logs a session; tapping a dot removes that one. */
+  const sessions = document.createElement('span');
+  sessions.className = 'sessions';
+  (item.sessions || []).forEach((stamp, at) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'dot';
+    dot.title = 'Session at ' + formatStamp(stamp) + ' — tap to remove';
+    dot.setAttribute('aria-label', 'Remove session at ' + formatStamp(stamp));
+    dot.addEventListener('click', () => removeSession(item.id, at));
+    sessions.appendChild(dot);
+  });
+
+  const addSessionBtn = document.createElement('button');
+  addSessionBtn.type = 'button';
+  addSessionBtn.className = 'session-add';
+  addSessionBtn.textContent = '+';
+  addSessionBtn.title = 'Log a session';
+  addSessionBtn.setAttribute('aria-label', 'Log a session for ' + item.text);
+  addSessionBtn.addEventListener('click', () => addSession(item.id));
+  sessions.appendChild(addSessionBtn);
 
   /* Second line: date & time, tag, priority — one grid cell each, so the
      columns line up between items. The tag cell stays in place when empty. */
@@ -92,7 +117,7 @@ function renderItem(item) {
   priorityCell.appendChild(pill(PRIORITY_LABEL[item.priority], item.priority));
 
   meta.append(when, tagCell, priorityCell);
-  body.append(label, meta);
+  body.append(label, sessions, meta);
 
   const edit = document.createElement('button');
   edit.type = 'button';
@@ -181,6 +206,7 @@ function addItem(text, tag, priority) {
     priority: priority,
     createdAt: new Date().toISOString(),
     done: false,
+    sessions: [],
   });
   saveList(list);
   render();
@@ -193,6 +219,22 @@ function updateItem(id, text, tag, priority) {
   item.tag = tag;
   item.priority = priority;
   /* createdAt stays put — the second line records when the item was added. */
+  saveList(list);
+  render();
+}
+
+function addSession(id) {
+  const item = list.items.find(i => i.id === id);
+  if (!item) return;
+  item.sessions = (item.sessions || []).concat(new Date().toISOString());
+  saveList(list);
+  render();
+}
+
+function removeSession(id, at) {
+  const item = list.items.find(i => i.id === id);
+  if (!item || !item.sessions || at >= item.sessions.length) return;
+  item.sessions.splice(at, 1);
   saveList(list);
   render();
 }
@@ -267,3 +309,109 @@ fetch(TAGS_URL)
   .catch(err => console.warn('Could not load ' + TAGS_URL, err));
 
 render();
+
+/* ---------------------------------------------------------------------------
+   Manual ordering.
+
+   Rows are dragged with pointer events rather than HTML5 drag-and-drop, which
+   iOS does not support. A mouse starts dragging after a few pixels of
+   movement; a finger starts after a short press, so that swiping still scrolls
+   the page. The dragged row is moved through the DOM as it passes its
+   neighbours, and the resulting order is written back to list.items on drop.
+--------------------------------------------------------------------------- */
+
+const PRESS_MS = 350;      /* press this long on touch before a drag starts */
+const MOUSE_SLOP = 5;      /* mouse movement that counts as a drag, in px */
+const TOUCH_SLOP = 10;     /* finger movement before the press becomes a scroll */
+
+let drag = null;
+
+function startDrag() {
+  if (!drag || drag.active) return;
+  clearTimeout(drag.timer);
+  drag.active = true;
+  drag.row.classList.add('dragging');
+  document.body.classList.add('dragging');
+}
+
+function endDrag() {
+  if (!drag) return;
+  clearTimeout(drag.timer);
+  const wasActive = drag.active;
+  drag.row.classList.remove('dragging');
+  document.body.classList.remove('dragging');
+  drag = null;
+
+  if (!wasActive) return;
+
+  /* The rows are now in the order the user wants — save it. */
+  const order = [...listEl.querySelectorAll('.item')].map(r => r.dataset.id);
+  list.items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  saveList(list);
+  if (sortEl.value !== 'manual') {
+    sortEl.value = 'manual';
+    saveSort('manual');
+  }
+  render();
+}
+
+/* Move the dragged row past any neighbour whose midpoint the pointer has
+   crossed. Completed items stay in the completed group and vice versa. */
+function dragTo(y) {
+  const done = drag.row.classList.contains('done');
+  const others = [...listEl.querySelectorAll('.item')]
+    .filter(r => r !== drag.row && r.classList.contains('done') === done);
+
+  for (const other of others) {
+    const box = other.getBoundingClientRect();
+    const middle = box.top + box.height / 2;
+    const rowIsAfter = other.compareDocumentPosition(drag.row) &
+      Node.DOCUMENT_POSITION_FOLLOWING;
+
+    if (y < middle && rowIsAfter) return listEl.insertBefore(drag.row, other);
+    if (y > middle && !rowIsAfter) return listEl.insertBefore(drag.row, other.nextSibling);
+  }
+}
+
+listEl.addEventListener('pointerdown', e => {
+  if (e.button > 0) return;                                  /* left/primary only */
+  const row = e.target.closest('.item');
+  if (!row) return;
+  if (e.target.closest('button, input, select, a')) return;  /* let controls work */
+
+  drag = {
+    row: row,
+    pointerId: e.pointerId,
+    startY: e.clientY,
+    touch: e.pointerType !== 'mouse',
+    active: false,
+    timer: null,
+  };
+  if (drag.touch) drag.timer = setTimeout(startDrag, PRESS_MS);
+});
+
+window.addEventListener('pointermove', e => {
+  if (!drag || e.pointerId !== drag.pointerId) return;
+
+  if (!drag.active) {
+    const moved = Math.abs(e.clientY - drag.startY);
+    /* Moving before the press completes means the user is scrolling. */
+    if (drag.touch) { if (moved > TOUCH_SLOP) endDrag(); }
+    else if (moved > MOUSE_SLOP) startDrag();
+    return;
+  }
+  dragTo(e.clientY);
+});
+
+window.addEventListener('pointerup', endDrag);
+window.addEventListener('pointercancel', endDrag);
+
+/* Stop the page scrolling under a finger that is dragging a row. */
+window.addEventListener('touchmove', e => {
+  if (drag && drag.active) e.preventDefault();
+}, { passive: false });
+
+/* And stop the press turning into a text selection or context menu. */
+listEl.addEventListener('contextmenu', e => {
+  if (drag && drag.active) e.preventDefault();
+});
