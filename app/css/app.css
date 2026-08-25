@@ -145,6 +145,23 @@ label.field {
 }
 .item:first-child { border-top: none; }
 
+/* Manual ordering */
+.item { cursor: grab; }
+
+.item.dragging {
+  cursor: grabbing;
+  pointer-events: none;    /* so the row underneath can be found */
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+  border-top-color: transparent;
+}
+
+body.dragging {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .item.done {
   background: #f6f6f6;
   color: #888;

@@ -11,8 +11,13 @@ day's items — so nothing carries over and clutter can't accumulate.
 - **New list** — wipes the current list and starts fresh (asks to confirm if the list isn't empty)
 
 **List view**:
-- Sort control sits directly under the header: priority, tag, newest or oldest.
-  Completed items always stay at the bottom whichever is chosen.
+- Sort control sits directly under the header: manual, priority, tag, newest or
+  oldest. Completed items always stay at the bottom whichever is chosen.
+- **Manual** is your own order. Drag a row to rearrange the list — click and drag
+  with a mouse, press and hold then drag on a phone. Dragging while another sort
+  is showing keeps what is on screen, applies the move and switches to Manual, so
+  the arrangement sticks. Items can only be moved within their group, since
+  completed ones stay pinned to the bottom.
 - **+ Add item** opens the entry form: a description, a tag from the dropdown, and a
   priority (high / medium / low). The form stays open so you can add several in a row;
   *Cancel* or `Esc` closes it.
@@ -66,7 +71,7 @@ want at the top of the list first. Items already tagged with something you later
 from the file keep their tag; they just sort after the listed ones.
 
 One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
-`CACHE` in `app/sw.js` (e.g. `lists-v4` → `lists-v5`) to make browsers pick the new
+`CACHE` in `app/sw.js` (e.g. `lists-v5` → `lists-v6`) to make browsers pick the new
 file up. The same applies to any change to the HTML, CSS or JS.
 
 Tags removed from the file are kept on items already using them — they show as normal
