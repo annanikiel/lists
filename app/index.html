@@ -10,7 +10,7 @@
 </head>
 <body>
   <h1>Lists</h1>
-  <p class="hint">One list at a time. Start a new one each day.</p>
+  <p class="hint">A fresh task list each day, and a shopping list for the shop.</p>
 
   <a class="card" id="open-list" href="#">
     <strong>Current list</strong><br/>
@@ -20,6 +20,11 @@
   <a class="card" id="new-list" href="#">
     <strong>New list</strong><br/>
     <small>Clear everything and start fresh</small>
+  </a>
+
+  <a class="card" id="shopping" href="html/shopping.html">
+    <strong>Shopping list</strong><br/>
+    <small id="shopping-detail">No items yet</small>
   </a>
 
   <script src="js/store.js"></script>
@@ -42,6 +47,16 @@
         : done + ' of ' + total + ' done';
     }
 
+    function renderShopping() {
+      const shop = loadShopping();
+      const total = shop ? shop.items.length : 0;
+      const done = shop ? shop.items.filter(i => i.done).length : 0;
+      document.getElementById('shopping-detail').textContent =
+        total === 0 ? 'No items yet'
+          : done === total ? 'Ready for the checkout'
+          : done + ' of ' + total + ' ticked off';
+    }
+
     openCard.addEventListener('click', e => {
       e.preventDefault();
       if (!loadList()) return;
@@ -61,6 +76,7 @@
     });
 
     render();
+    renderShopping();
   </script>
   <script>
     if ('serviceWorker' in navigator) {

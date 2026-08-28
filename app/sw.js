@@ -1,12 +1,15 @@
-const CACHE = 'lists-v7';
+const CACHE = 'lists-v8';
 
 const FILES = [
   './',
   'css/app.css',
   'html/list.html',
+  'html/shopping.html',
   'js/store.js',
   'js/list.js',
+  'js/shopping.js',
   'data/tags.json',
+  'data/shopping-tags.json',
 ];
 
 self.addEventListener('install', e => {
