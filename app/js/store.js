@@ -1,7 +1,9 @@
-/* Shared storage helpers for the lists app. One list at a time. */
+/* Shared storage helpers. One task list at a time, plus a shopping list. */
 
 const STORE_KEY = 'lists_current';
 const SORT_KEY = 'lists_sort';
+const SHOP_KEY = 'lists_shopping';
+const SHOP_SORT_KEY = 'lists_shopping_sort';
 
 function loadList() {
   try {
@@ -33,11 +35,35 @@ function saveSort(sort) {
   localStorage.setItem(SORT_KEY, sort);
 }
 
-function formatDay(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, {
-    weekday: 'long', day: 'numeric', month: 'long'
-  });
+/* The shopping list keeps no dates — items are just text, tag, price, done. */
+function loadShopping() {
+  try {
+    const raw = localStorage.getItem(SHOP_KEY);
+    if (!raw) return null;
+    const list = JSON.parse(raw);
+    if (!list || !Array.isArray(list.items)) return null;
+    return list;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveShopping(list) {
+  localStorage.setItem(SHOP_KEY, JSON.stringify(list));
+}
+
+function newShopping() {
+  const list = { items: [] };
+  saveShopping(list);
+  return list;
+}
+
+function loadShopSort() {
+  return localStorage.getItem(SHOP_SORT_KEY) || 'added';
+}
+
+function saveShopSort(sort) {
+  localStorage.setItem(SHOP_SORT_KEY, sort);
 }
 
 function formatStamp(iso) {

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>List</title>
+  <title>Shopping list</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../css/app.css">
 </head>
@@ -11,8 +11,8 @@
 
   <header class="page-header">
     <div>
-      <h1 id="title">Current list</h1>
-      <p class="hint" id="subtitle">Tick an item to move it to the bottom. Press and drag to reorder.</p>
+      <h1>Shopping list</h1>
+      <p class="hint">Tick things off as they go in the trolley.</p>
     </div>
   </header>
 
@@ -20,23 +20,17 @@
     <label class="field" for="sort">
       Sort by
       <select id="sort">
-        <option value="manual">Manual</option>
-        <option value="priority">Priority</option>
+        <option value="added">Order added</option>
         <option value="tag">Tag</option>
-        <option value="newest">Newest first</option>
-        <option value="oldest">Oldest first</option>
       </select>
     </label>
-    <span class="spacer"></span>
-    <span class="hint" id="progress"></span>
-    <button type="button" class="clear" id="clear-done" hidden>Clear completed</button>
   </div>
 
   <button class="primary" type="button" id="add-toggle">+ Add item</button>
 
   <form class="add-form" id="add-form" hidden>
     <div class="row">
-      <input type="text" id="item-text" placeholder="What needs doing?" autocomplete="off" required />
+      <input type="text" id="item-text" placeholder="What do you need?" autocomplete="off" required />
     </div>
     <div class="row">
       <label class="field" for="item-tag">
@@ -45,13 +39,9 @@
           <option value="">No tag</option>
         </select>
       </label>
-      <label class="field" for="item-priority">
-        Priority
-        <select id="item-priority">
-          <option value="high">High</option>
-          <option value="medium" selected>Medium</option>
-          <option value="low">Low</option>
-        </select>
+      <label class="field" for="item-price">
+        Price
+        <input type="number" id="item-price" placeholder="0.00" step="0.01" min="0" inputmode="decimal" />
       </label>
       <span class="spacer"></span>
       <button type="button" id="add-cancel">Cancel</button>
@@ -59,9 +49,11 @@
     </div>
   </form>
 
+  <div class="total" id="total" hidden></div>
+
   <div class="list" id="list"></div>
 
   <script src="../js/store.js"></script>
-  <script src="../js/list.js"></script>
+  <script src="../js/shopping.js"></script>
 </body>
 </html>

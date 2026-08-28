@@ -16,7 +16,6 @@ const textEl = document.getElementById('item-text');
 const tagEl = document.getElementById('item-tag');
 const priorityEl = document.getElementById('item-priority');
 const sortEl = document.getElementById('sort');
-const titleEl = document.getElementById('title');
 const progressEl = document.getElementById('progress');
 
 let list = loadList() || newList();
@@ -144,8 +143,6 @@ function renderItem(item) {
 }
 
 function render() {
-  titleEl.textContent = formatDay(list.createdAt);
-
   const done = list.items.filter(i => i.done).length;
   progressEl.textContent = list.items.length
     ? done + ' of ' + list.items.length + ' done'

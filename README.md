@@ -6,9 +6,12 @@ day's items — so nothing carries over and clutter can't accumulate.
 
 ## How it works
 
-**Home screen** — two choices:
-- **Open list** — carry on with the current list (shows the day it was started and progress)
+The list view is headed simply **Current list** — there is only ever one.
+
+**Home screen** — three choices:
+- **Current list** — carry on with the list in progress (shows how much is done)
 - **New list** — wipes the current list and starts fresh (asks to confirm if the list isn't empty)
+- **Shopping list** — a separate list for the shop, kept independently of the task list
 
 **List view**:
 - Sort control sits directly under the header: manual, priority, tag, newest or
@@ -33,7 +36,20 @@ day's items — so nothing carries over and clutter can't accumulate.
 - **Clear completed** (next to the progress count, only shown when something is
   ticked) deletes the completed items and leaves the rest of the list running
 
-Everything is stored in the browser's `localStorage`, so the list stays on the device.
+**Shopping list** — a simpler list, for a shop rather than a day:
+- Add an item with a description, a tag from its own set, and an expected price.
+  No timestamps and no session marks — just things to buy.
+- Edit with `✎`, remove with `×`, tick items off as they go in the trolley
+- **Sort by** order added or by tag. Sorting by tag follows the order of
+  `shopping-tags.json`, so listing the tags in the order you walk the shop turns
+  the list into an aisle-by-aisle route. Ticked items stay at the bottom either way.
+- Once every item has a price, the **total** appears above the list. Until then that
+  row says how many are priced, so it is clear why the total isn't showing.
+- When everything is ticked, the list is replaced by **Now go to the checkout** and a
+  **Start again** button that clears it ready for the next shop. The total stays on
+  screen, which is the point at which it's most useful.
+
+Everything is stored in the browser's `localStorage`, so the lists stay on the device.
 
 ## Structure
 
@@ -45,16 +61,20 @@ app/
   index.html        home screen
   html/list.html    list view
   css/app.css       styles
-  data/tags.json    the tag options  <- edit this to change the tags
+  html/shopping.html   shopping list
+  data/tags.json    the task tag options      <- edit these to change the tags
+  data/shopping-tags.json  the shopping tag options
   js/store.js       localStorage helpers
   js/list.js        list view logic
+  js/shopping.js    shopping list logic
   manifest.json     PWA manifest
   sw.js             service worker (offline cache)
 ```
 
 ### Changing the tags
 
-`app/data/tags.json` is a plain JSON array of strings. Add, remove or rename entries
+`app/data/tags.json` (task list) and `app/data/shopping-tags.json` (shopping list) are
+plain JSON arrays of strings, each independent of the other. Add, remove or rename entries
 and push — nothing else needs changing:
 
 ```json
@@ -66,15 +86,19 @@ and push — nothing else needs changing:
 ]
 ```
 
-The order in the file is also the order used by **Sort by → Tag**, so put the tags you
-want at the top of the list first. Items already tagged with something you later remove
+In both files the order is also the order used by **Sort by → Tag**: for the task list
+put the tags you want to see first at the top; for the shopping list put them in the
+order you walk round the shop. Items already tagged with something you later remove
 from the file keep their tag; they just sort after the listed ones.
 
 One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
-`CACHE` in `app/sw.js` (e.g. `lists-v5` → `lists-v6`) to make browsers pick the new
+`CACHE` in `app/sw.js` (e.g. `lists-v9` → `lists-v10`) to make browsers pick the new
 file up. The same applies to any change to the HTML, CSS or JS.
 
 Tags removed from the file are kept on items already using them — they show as normal
 and stay selectable when you edit that item, they just sort after the listed tags.
 
 To run locally: `cd app && python3 -m http.server 8000`, then open http://localhost:8000
+
+The currency symbol for the shopping list is the `CURRENCY` constant at the top of
+`app/js/shopping.js`.
