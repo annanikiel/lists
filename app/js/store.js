@@ -33,13 +33,6 @@ function saveSort(sort) {
   localStorage.setItem(SORT_KEY, sort);
 }
 
-function formatDay(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, {
-    weekday: 'long', day: 'numeric', month: 'long'
-  });
-}
-
 function formatStamp(iso) {
   const d = new Date(iso);
   return d.toLocaleString(undefined, {

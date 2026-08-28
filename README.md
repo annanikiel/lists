@@ -9,7 +9,7 @@ day's items — so nothing carries over and clutter can't accumulate.
 The list view is headed simply **Current list** — there is only ever one.
 
 **Home screen** — two choices:
-- **Open list** — carry on with the current list (shows the day it was started and progress)
+- **Current list** — carry on with the list in progress (shows how much is done)
 - **New list** — wipes the current list and starts fresh (asks to confirm if the list isn't empty)
 
 **List view**:
@@ -73,7 +73,7 @@ want at the top of the list first. Items already tagged with something you later
 from the file keep their tag; they just sort after the listed ones.
 
 One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
-`CACHE` in `app/sw.js` (e.g. `lists-v6` → `lists-v7`) to make browsers pick the new
+`CACHE` in `app/sw.js` (e.g. `lists-v7` → `lists-v8`) to make browsers pick the new
 file up. The same applies to any change to the HTML, CSS or JS.
 
 Tags removed from the file are kept on items already using them — they show as normal

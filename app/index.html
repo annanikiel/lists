@@ -13,7 +13,7 @@
   <p class="hint">One list at a time. Start a new one each day.</p>
 
   <a class="card" id="open-list" href="#">
-    <strong>Open list</strong><br/>
+    <strong>Current list</strong><br/>
     <small id="open-detail">No list yet</small>
   </a>
 
@@ -37,10 +37,9 @@
       openCard.classList.remove('disabled');
       const total = list.items.length;
       const done = list.items.filter(i => i.done).length;
-      const counts = total === 0
+      openDetail.textContent = total === 0
         ? 'No items yet'
         : done + ' of ' + total + ' done';
-      openDetail.textContent = formatDay(list.createdAt) + ' — ' + counts;
     }
 
     openCard.addEventListener('click', e => {
