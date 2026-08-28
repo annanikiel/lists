@@ -3,6 +3,7 @@
 const STORE_KEY = 'lists_current';
 const SORT_KEY = 'lists_sort';
 const SHOP_KEY = 'lists_shopping';
+const SHOP_SORT_KEY = 'lists_shopping_sort';
 
 function loadList() {
   try {
@@ -55,6 +56,14 @@ function newShopping() {
   const list = { items: [] };
   saveShopping(list);
   return list;
+}
+
+function loadShopSort() {
+  return localStorage.getItem(SHOP_SORT_KEY) || 'added';
+}
+
+function saveShopSort(sort) {
+  localStorage.setItem(SHOP_SORT_KEY, sort);
 }
 
 function formatStamp(iso) {

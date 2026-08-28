@@ -13,10 +13,13 @@ const submitEl = document.getElementById('add-submit');
 const textEl = document.getElementById('item-text');
 const tagEl = document.getElementById('item-tag');
 const priceEl = document.getElementById('item-price');
+const sortEl = document.getElementById('sort');
 
 let list = loadShopping() || newShopping();
 let tags = [];
 let editingId = null;
+
+sortEl.value = loadShopSort();
 
 function money(amount) {
   return CURRENCY + amount.toFixed(2);
@@ -29,9 +32,24 @@ function listTotal(items) {
 
 const hasPrice = item => typeof item.price === 'number' && !isNaN(item.price);
 
-/* Ticked items drop to the bottom, otherwise the order things were added. */
+/* Tags sort in the order they are listed in shopping-tags.json, so putting
+   that file in aisle order walks you round the shop. Untagged items last. */
+function tagRank(tag) {
+  if (!tag) return Number.MAX_SAFE_INTEGER;
+  const i = tags.indexOf(tag);
+  return i === -1 ? Number.MAX_SAFE_INTEGER - 1 : i;
+}
+
+/* Ticked items always drop to the bottom, then the chosen order. Sort is
+   stable, so "added" keeps the order things went on the list. */
 function ordered(items) {
-  return items.slice().sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1));
+  const byTag = sortEl.value === 'tag';
+  return items.slice().sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    if (!byTag) return 0;
+    return tagRank(a.tag) - tagRank(b.tag) ||
+      (a.tag || '').localeCompare(b.tag || '');
+  });
 }
 
 function pill(text, className) {
@@ -235,6 +253,11 @@ function startAgain() {
   if (!formEl.hidden) closeForm(); else render();
 }
 
+sortEl.addEventListener('change', () => {
+  saveShopSort(sortEl.value);
+  render();
+});
+
 toggleEl.addEventListener('click', () => openForm());
 cancelEl.addEventListener('click', closeForm);
 
@@ -264,6 +287,7 @@ fetch(TAGS_URL)
   .then(loaded => {
     tags = loaded;
     tagEl.append(...tags.map(t => new Option(t, t)));
+    render();
   })
   .catch(err => console.warn('Could not load ' + TAGS_URL, err));
 

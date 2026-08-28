@@ -40,6 +40,9 @@ The list view is headed simply **Current list** — there is only ever one.
 - Add an item with a description, a tag from its own set, and an expected price.
   No timestamps and no session marks — just things to buy.
 - Edit with `✎`, remove with `×`, tick items off as they go in the trolley
+- **Sort by** order added or by tag. Sorting by tag follows the order of
+  `shopping-tags.json`, so listing the tags in the order you walk the shop turns
+  the list into an aisle-by-aisle route. Ticked items stay at the bottom either way.
 - Once every item has a price, the **total** appears above the list. Until then that
   row says how many are priced, so it is clear why the total isn't showing.
 - When everything is ticked, the list is replaced by **Now go to the checkout** and a
@@ -83,12 +86,13 @@ and push — nothing else needs changing:
 ]
 ```
 
-For the task list, the order in the file is also the order used by **Sort by → Tag**, so
-put the tags you want at the top of the list first. Items already tagged with something you later remove
+In both files the order is also the order used by **Sort by → Tag**: for the task list
+put the tags you want to see first at the top; for the shopping list put them in the
+order you walk round the shop. Items already tagged with something you later remove
 from the file keep their tag; they just sort after the listed ones.
 
 One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
-`CACHE` in `app/sw.js` (e.g. `lists-v8` → `lists-v9`) to make browsers pick the new
+`CACHE` in `app/sw.js` (e.g. `lists-v9` → `lists-v10`) to make browsers pick the new
 file up. The same applies to any change to the HTML, CSS or JS.
 
 Tags removed from the file are kept on items already using them — they show as normal
