@@ -116,6 +116,16 @@ function renderItem(item) {
   priorityCell.appendChild(pill(PRIORITY_LABEL[item.priority], item.priority));
 
   meta.append(when, tagCell, priorityCell);
+
+  /* Completed items also carry when they were ticked off, on its own row
+     beneath. Items ticked before this was added simply don't have one. */
+  if (item.done && item.completedAt) {
+    const doneAt = document.createElement('span');
+    doneAt.className = 'done-at';
+    doneAt.textContent = 'Done ' + formatStamp(item.completedAt);
+    meta.appendChild(doneAt);
+  }
+
   body.append(label, sessions, meta);
 
   const edit = document.createElement('button');
@@ -240,6 +250,9 @@ function toggleItem(id, done) {
   const item = list.items.find(i => i.id === id);
   if (!item) return;
   item.done = done;
+  /* Unticking drops the completion time rather than leaving a stale one. */
+  if (done) item.completedAt = new Date().toISOString();
+  else delete item.completedAt;
   saveList(list);
   render();
 }
