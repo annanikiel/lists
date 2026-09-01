@@ -26,7 +26,9 @@ The list view is headed simply **Current list** — there is only ever one.
   *Cancel* or `Esc` closes it.
 - Each item shows the title on one line, then date & time added, tag and priority on the
   second, lined up in columns across items
-- Tick the checkbox to complete an item — it moves to the bottom of the list
+- Tick the checkbox to complete an item — it moves to the bottom of the list and
+  records when, shown as a `Done ...` line under the time it was added. Unticking
+  clears that time again rather than leaving a stale one.
 - `+` after the title logs a work session and leaves a dot, so a big item can be
   chipped away at over several sittings: `Write the review ● ● ●`. Each dot shows
   the time it was logged on hover, and tapping one removes it.
@@ -92,7 +94,7 @@ order you walk round the shop. Items already tagged with something you later rem
 from the file keep their tag; they just sort after the listed ones.
 
 One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
-`CACHE` in `app/sw.js` (e.g. `lists-v9` → `lists-v10`) to make browsers pick the new
+`CACHE` in `app/sw.js` (e.g. `lists-v10` → `lists-v11`) to make browsers pick the new
 file up. The same applies to any change to the HTML, CSS or JS.
 
 Tags removed from the file are kept on items already using them — they show as normal

@@ -244,6 +244,9 @@ body.dragging {
 }
 .item.done .meta { color: #999; }
 
+/* When the item was ticked off — its own row under the added time */
+.item .meta .done-at { grid-column: 1 / -1; }
+
 @media (max-width: 560px) {
   /* Narrower page margin buys the room the meta columns need */
   body { margin: 1rem; }

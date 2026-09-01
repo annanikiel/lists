@@ -1,4 +1,4 @@
-const CACHE = 'lists-v9';
+const CACHE = 'lists-v10';
 
 const FILES = [
   './',
