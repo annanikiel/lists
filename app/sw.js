@@ -1,4 +1,4 @@
-const CACHE = 'lists-v10';
+const CACHE = 'lists-v11';
 
 const FILES = [
   './',
@@ -10,6 +10,7 @@ const FILES = [
   'js/shopping.js',
   'data/tags.json',
   'data/shopping-tags.json',
+  'data/shops.json',
 ];
 
 self.addEventListener('install', e => {
