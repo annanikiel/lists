@@ -34,14 +34,19 @@ The list view is headed simply **Current list** — there is only ever one.
   the time it was logged on hover, and tapping one removes it.
 - `✎` reopens an item in the form to reword it or change its tag or priority.
   The row being edited is highlighted, and the "added" timestamp is left alone.
-- `×` removes an item
+- `×` removes an item, after a confirmation
 - **Clear completed** (next to the progress count, only shown when something is
   ticked) deletes the completed items and leaves the rest of the list running
 
 **Shopping list** — a simpler list, for a shop rather than a day:
-- Add an item with a description, a tag from its own set, and an expected price.
-  No timestamps and no session marks — just things to buy.
+- Add an item with a description, a tag from its own set, the shop it comes from,
+  and an expected price. No timestamps and no session marks — just things to buy.
 - Edit with `✎`, remove with `×`, tick items off as they go in the trolley
+- **Shop** filters the list to one shop, so a trip round Tesco doesn't show what
+  comes from the butcher. The total, the checkout screen and **Start again** all
+  follow the filter: finishing one shop clears only that shop's items and leaves
+  the rest of the list for later. A line under the control says how many items are
+  hidden, and the filter is remembered between visits.
 - **Sort by** order added or by tag. Sorting by tag follows the order of
   `shopping-tags.json`, so listing the tags in the order you walk the shop turns
   the list into an aisle-by-aisle route. Ticked items stay at the bottom either way.
@@ -66,6 +71,7 @@ app/
   html/shopping.html   shopping list
   data/tags.json    the task tag options      <- edit these to change the tags
   data/shopping-tags.json  the shopping tag options
+  data/shops.json   the shops, for the shopping list
   js/store.js       localStorage helpers
   js/list.js        list view logic
   js/shopping.js    shopping list logic
@@ -75,8 +81,8 @@ app/
 
 ### Changing the tags
 
-`app/data/tags.json` (task list) and `app/data/shopping-tags.json` (shopping list) are
-plain JSON arrays of strings, each independent of the other. Add, remove or rename entries
+`app/data/tags.json` (task list), `app/data/shopping-tags.json` and `app/data/shops.json`
+(shopping list) are plain JSON arrays of strings, each independent of the others. Add, remove or rename entries
 and push — nothing else needs changing:
 
 ```json
@@ -94,8 +100,11 @@ order you walk round the shop. Items already tagged with something you later rem
 from the file keep their tag; they just sort after the listed ones.
 
 One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
-`CACHE` in `app/sw.js` (e.g. `lists-v10` → `lists-v11`) to make browsers pick the new
+`CACHE` in `app/sw.js` (e.g. `lists-v11` → `lists-v12`) to make browsers pick the new
 file up. The same applies to any change to the HTML, CSS or JS.
+
+The shop dropdown only offers shops that are actually on the list, in the order
+`shops.json` gives them.
 
 Tags removed from the file are kept on items already using them — they show as normal
 and stay selectable when you edit that item, they just sort after the listed tags.

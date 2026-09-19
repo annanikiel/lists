@@ -17,6 +17,12 @@
   </header>
 
   <div class="toolbar">
+    <label class="field" for="shop-filter">
+      Shop
+      <select id="shop-filter">
+        <option value="">All shops</option>
+      </select>
+    </label>
     <label class="field" for="sort">
       Sort by
       <select id="sort">
@@ -25,6 +31,8 @@
       </select>
     </label>
   </div>
+
+  <p class="hint filter-note" id="filter-note" hidden></p>
 
   <button class="primary" type="button" id="add-toggle">+ Add item</button>
 
@@ -37,6 +45,12 @@
         Tag
         <select id="item-tag">
           <option value="">No tag</option>
+        </select>
+      </label>
+      <label class="field" for="item-shop">
+        Shop
+        <select id="item-shop">
+          <option value="">No shop</option>
         </select>
       </label>
       <label class="field" for="item-price">

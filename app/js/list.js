@@ -258,6 +258,9 @@ function toggleItem(id, done) {
 }
 
 function removeItem(id) {
+  const item = list.items.find(i => i.id === id);
+  if (!item) return;
+  if (!confirm('Remove "' + item.text + '" from the list?')) return;
   list.items = list.items.filter(i => i.id !== id);
   saveList(list);
   if (id === editingId) closeForm(); else render();

@@ -4,6 +4,7 @@ const STORE_KEY = 'lists_current';
 const SORT_KEY = 'lists_sort';
 const SHOP_KEY = 'lists_shopping';
 const SHOP_SORT_KEY = 'lists_shopping_sort';
+const SHOP_FILTER_KEY = 'lists_shopping_filter';
 
 function loadList() {
   try {
@@ -64,6 +65,15 @@ function loadShopSort() {
 
 function saveShopSort(sort) {
   localStorage.setItem(SHOP_SORT_KEY, sort);
+}
+
+/* '' means every shop. */
+function loadShopFilter() {
+  return localStorage.getItem(SHOP_FILTER_KEY) || '';
+}
+
+function saveShopFilter(shop) {
+  localStorage.setItem(SHOP_FILTER_KEY, shop);
 }
 
 function formatStamp(iso) {
