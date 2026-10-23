@@ -15,12 +15,14 @@ const clearDoneEl = document.getElementById('clear-done');
 const textEl = document.getElementById('item-text');
 const tagEl = document.getElementById('item-tag');
 const priorityEl = document.getElementById('item-priority');
+const noteEl = document.getElementById('item-note');
 const sortEl = document.getElementById('sort');
 const progressEl = document.getElementById('progress');
 
 let list = loadList() || newList();
 let tags = [];
 let editingId = null;   /* id of the item the form is editing, null when adding */
+const openNotes = new Set();   /* ids whose note is currently expanded */
 
 sortEl.value = loadSort();
 
@@ -77,6 +79,22 @@ function renderItem(item) {
   label.className = 'label';
   label.textContent = item.text;
 
+  /* A note shows as a marker after the title; tapping it opens the note
+     below. Items without a note have no marker. */
+  const noteToggle = document.createElement('button');
+  noteToggle.type = 'button';
+  noteToggle.className = 'note-toggle';
+  noteToggle.textContent = 'Note';
+  noteToggle.hidden = !item.note;
+  if (item.note) {
+    const open = openNotes.has(item.id);
+    noteToggle.classList.toggle('open', open);
+    noteToggle.setAttribute('aria-expanded', String(open));
+    noteToggle.title = (open ? 'Hide' : 'Show') + ' note';
+    noteToggle.setAttribute('aria-label', (open ? 'Hide' : 'Show') + ' note for ' + item.text);
+    noteToggle.addEventListener('click', () => toggleNote(item.id));
+  }
+
   /* Session marks: one dot per work session, tally-style, after the title.
      The + logs a session; tapping a dot removes that one. */
   const sessions = document.createElement('span');
@@ -126,7 +144,14 @@ function renderItem(item) {
     meta.appendChild(doneAt);
   }
 
-  body.append(label, sessions, meta);
+  body.append(label, noteToggle, sessions, meta);
+
+  if (item.note && openNotes.has(item.id)) {
+    const note = document.createElement('p');
+    note.className = 'note';
+    note.textContent = item.note;
+    body.appendChild(note);
+  }
 
   const edit = document.createElement('button');
   edit.type = 'button';
@@ -179,6 +204,7 @@ function openForm(item) {
   textEl.value = item ? item.text : '';
   setTagValue(item ? item.tag : '');
   priorityEl.value = item ? item.priority : 'medium';
+  noteEl.value = item && item.note ? item.note : '';
   submitEl.textContent = item ? 'Save changes' : 'Add item';
   formEl.hidden = false;
   toggleEl.hidden = true;
@@ -205,12 +231,13 @@ function setTagValue(tag) {
   tagEl.value = tag || '';
 }
 
-function addItem(text, tag, priority) {
+function addItem(text, tag, priority, note) {
   list.items.push({
     id: String(Date.now()) + Math.random().toString(16).slice(2, 8),
     text: text,
     tag: tag,
     priority: priority,
+    note: note,
     createdAt: new Date().toISOString(),
     done: false,
     sessions: [],
@@ -219,14 +246,22 @@ function addItem(text, tag, priority) {
   render();
 }
 
-function updateItem(id, text, tag, priority) {
+function updateItem(id, text, tag, priority, note) {
   const item = list.items.find(i => i.id === id);
   if (!item) return;
   item.text = text;
   item.tag = tag;
   item.priority = priority;
+  item.note = note;
+  /* Clearing the note closes it, so no empty panel is left open. */
+  if (!note) openNotes.delete(id);
   /* createdAt stays put — the second line records when the item was added. */
   saveList(list);
+  render();
+}
+
+function toggleNote(id) {
+  if (openNotes.has(id)) openNotes.delete(id); else openNotes.add(id);
   render();
 }
 
@@ -262,6 +297,7 @@ function removeItem(id) {
   if (!item) return;
   if (!confirm('Remove "' + item.text + '" from the list?')) return;
   list.items = list.items.filter(i => i.id !== id);
+  openNotes.delete(id);
   saveList(list);
   if (id === editingId) closeForm(); else render();
 }
@@ -274,6 +310,7 @@ function clearCompleted() {
     (done.length === 1 ? '' : 's') + ' from the list?');
   if (!ok) return;
   const editingCleared = done.some(i => i.id === editingId);
+  done.forEach(i => openNotes.delete(i.id));
   list.items = list.items.filter(i => !i.done);
   saveList(list);
   if (editingCleared) closeForm(); else render();
@@ -293,14 +330,15 @@ formEl.addEventListener('submit', e => {
   if (!text) return;
 
   if (editingId) {
-    updateItem(editingId, text, tagEl.value, priorityEl.value);
+    updateItem(editingId, text, tagEl.value, priorityEl.value, noteEl.value.trim());
     closeForm();
     return;
   }
 
-  addItem(text, tagEl.value, priorityEl.value);
+  addItem(text, tagEl.value, priorityEl.value, noteEl.value.trim());
   /* Stay open so several items can be added in one go. */
   formEl.reset();
+  noteEl.value = '';
   priorityEl.value = 'medium';
   textEl.focus();
 });
