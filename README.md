@@ -29,6 +29,10 @@ The list view is headed simply **Current list** — there is only ever one.
 - Tick the checkbox to complete an item — it moves to the bottom of the list and
   records when, shown as a `Done ...` line under the time it was added. Unticking
   clears that time again rather than leaving a stale one.
+- Items can carry a **note**. Write it in the form when adding, or with `✎` later.
+  An item that has one shows a small **Note** marker after its title; tapping the
+  marker opens the note under the item and tapping again hides it, so the list stays
+  scannable. Clearing the text removes the note and its marker.
 - `+` after the title logs a work session and leaves a dot, so a big item can be
   chipped away at over several sittings: `Write the review ● ● ●`. Each dot shows
   the time it was logged on hover, and tapping one removes it.
@@ -100,7 +104,7 @@ order you walk round the shop. Items already tagged with something you later rem
 from the file keep their tag; they just sort after the listed ones.
 
 One catch: `sw.js` caches the app for offline use, so after editing `tags.json` bump
-`CACHE` in `app/sw.js` (e.g. `lists-v11` → `lists-v12`) to make browsers pick the new
+`CACHE` in `app/sw.js` (e.g. `lists-v13` → `lists-v14`) to make browsers pick the new
 file up. The same applies to any change to the HTML, CSS or JS.
 
 The shop dropdown only offers shops that are actually on the list, in the order
